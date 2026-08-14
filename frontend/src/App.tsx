@@ -89,7 +89,11 @@ function App() {
         const sourceCol = newBoard.columns[sourceColIndex];
         const destCol = newBoard.columns[destColIndex];
         
+        if (!sourceCol || !destCol) return;
+        
         const [movedTask] = sourceCol.tasks.splice(source.index, 1);
+        if (!movedTask) return;
+        
         movedTask.column_id = destColId;
         destCol.tasks.splice(destination.index, 0, movedTask);
         
