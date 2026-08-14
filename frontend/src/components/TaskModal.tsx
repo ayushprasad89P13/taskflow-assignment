@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Task, TaskCreate, TaskUpdate } from '../types';
+import { useState, useEffect } from 'react';
+import type { Task, TaskCreate, TaskUpdate, Priority } from '../types';
 
 interface TaskModalProps {
     isOpen: boolean;
@@ -9,12 +9,21 @@ interface TaskModalProps {
     existingTask?: Task;
 }
 
-const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, columnId, existingTask }) => {
+const TaskModal = ({ isOpen, onClose, onSave, columnId, existingTask }: TaskModalProps) => {
     const [title, setTitle] = useState(existingTask?.title || '');
     const [description, setDescription] = useState(existingTask?.description || '');
-    const [priority, setPriority] = useState(existingTask?.priority || 'Medium');
+    const [priority, setPriority] = useState<Priority>(existingTask?.priority || 'Medium');
     const [error, setError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            setTitle(existingTask?.title || '');
+            setDescription(existingTask?.description || '');
+            setPriority(existingTask?.priority || 'Medium');
+            setError(null);
+        }
+    }, [isOpen, existingTask]);
 
     if (!isOpen) return null;
 
@@ -36,8 +45,9 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, columnId
                 await onSave({ title, description, priority, column_id: columnId } as TaskCreate);
             }
             onClose();
-        } catch (err: any) {
-            setError(err.message || 'An error occurred');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'An error occurred';
+            setError(message);
         } finally {
             setIsSaving(false);
         }
@@ -92,7 +102,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave, columnId
                             </label>
                             <select
                                 value={priority}
-                                onChange={(e) => setPriority(e.target.value)}
+                                onChange={(e) => setPriority(e.target.value as Priority)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                             >
                                 <option value="Low">Low</option>

@@ -1,8 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import List, Optional
+from typing import Optional
 from datetime import datetime
-
-# Shared properties
 class TaskBase(BaseModel):
     title: str = Field(..., description="The title of the task")
     description: Optional[str] = None
@@ -53,7 +51,7 @@ class Column(ColumnBase):
     id: int
     board_id: int
     created_at: datetime
-    tasks: List[Task] = []
+    tasks: list[Task] = []
 
     model_config = {"from_attributes": True}
 
@@ -66,11 +64,10 @@ class BoardCreate(BoardBase):
 class Board(BoardBase):
     id: int
     created_at: datetime
-    columns: List[Column] = []
+    columns: list[Column] = []
 
     model_config = {"from_attributes": True}
 
-# Response models for custom queries
 class TaskCountPerColumn(BaseModel):
     column_id: int
     column_title: str

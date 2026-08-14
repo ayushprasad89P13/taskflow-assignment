@@ -1,63 +1,74 @@
+"""
+seed.py — Populates the SQLite database with initial sample data using SQLAlchemy ORM.
+Run: python seed.py
+"""
+import sys
 import os
-import psycopg2
-from psycopg2.extras import RealDictCursor
-from dotenv import load_dotenv
 
-load_dotenv()
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://taskflow_user:taskflow_password@localhost:5432/taskflow_db")
+from database import engine, SessionLocal, Base
+from models import Board, ColumnModel, Task
 
 def seed_db():
-    conn = None
-    try:
-        conn = psycopg2.connect(DATABASE_URL)
-        conn.autocommit = True
-        cur = conn.cursor(cursor_factory=RealDictCursor)
+    """Create tables and insert 1 board, 3 columns, and 5 sample tasks."""
+    Base.metadata.create_all(bind=engine)
 
-        # Check if database is already seeded
-        cur.execute("SELECT count(*) FROM boards;")
-        if cur.fetchone()['count'] > 0:
+    db = SessionLocal()
+    try:
+        if db.query(Board).count() > 0:
             print("Database already seeded. Skipping.")
             return
 
         print("Seeding database...")
-        
-        # Insert default board
-        cur.execute("INSERT INTO boards (title) VALUES ('Main Workspace') RETURNING id;")
-        board_id = cur.fetchone()['id']
-        
-        # Insert columns
-        columns = ['To Do', 'In Progress', 'Done']
-        col_ids = []
-        for i, col_title in enumerate(columns):
-            cur.execute(
-                "INSERT INTO columns (board_id, title, \"order\") VALUES (%s, %s, %s) RETURNING id;",
-                (board_id, col_title, i)
-            )
-            col_ids.append(cur.fetchone()['id'])
-            
-        # Insert 5 sample tasks
+
+        board = Board(title="Main Workspace")
+        db.add(board)
+        db.commit()
+        db.refresh(board)
+
+        columns_data = ["To Do", "In Progress", "Done"]
+        cols = []
+        for i, title in enumerate(columns_data):
+            col = ColumnModel(board_id=board.id, title=title, order=i)
+            db.add(col)
+            cols.append(col)
+        db.commit()
+        for col in cols:
+            db.refresh(col)
+
         tasks_data = [
-            (col_ids[0], "Design DB schema", "Draft the database schema for boards, columns, and tasks.", "High", 0),
-            (col_ids[0], "Setup Docker Compose", "Create docker-compose.yml for postgres and backend.", "Medium", 1),
-            (col_ids[1], "Implement API endpoints", "Write FastAPI routes and CRUD operations.", "High", 0),
-            (col_ids[1], "Build Frontend UI", "Create React components using Tailwind CSS.", "Medium", 1),
-            (col_ids[2], "Project Planning", "Gather requirements and create an implementation plan.", "Low", 0)
+            (cols[0].id, "Design DB schema",
+             "Draft the database schema for boards, columns, and tasks.", "High", 0),
+            (cols[0].id, "Setup Docker Compose",
+             "Create docker-compose.yml for postgres and backend.", "Medium", 1),
+            (cols[1].id, "Implement API endpoints",
+             "Write FastAPI routes and CRUD operations.", "High", 0),
+            (cols[1].id, "Build Frontend UI",
+             "Create React components using Tailwind CSS.", "Medium", 1),
+            (cols[2].id, "Project Planning",
+             "Gather requirements and create an implementation plan.", "Low", 0),
         ]
-        
-        for task in tasks_data:
-            cur.execute(
-                "INSERT INTO tasks (column_id, title, description, priority, \"order\") VALUES (%s, %s, %s, %s, %s);",
-                task
+
+        for col_id, title, desc, priority, order in tasks_data:
+            task = Task(
+                column_id=col_id,
+                title=title,
+                description=desc,
+                priority=priority,
+                order=order,
             )
-            
-        print("Database seeding completed successfully.")
-        
+            db.add(task)
+
+        db.commit()
+        print("Database seeded successfully.")
     except Exception as e:
+        db.rollback()
         print(f"Error seeding database: {e}")
+        raise
     finally:
-        if conn:
-            conn.close()
+        db.close()
+
 
 if __name__ == "__main__":
     seed_db()

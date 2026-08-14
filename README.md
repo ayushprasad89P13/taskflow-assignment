@@ -64,5 +64,11 @@ Two specific raw SQL / explicit query builder functions are implemented in `back
 4. **Optimistic UI Updates:** Dragging and dropping tasks updates the React state immediately for a snappy user experience. If the API request fails, the application catches the error, displays a toast, and reverts the state by refetching from the server.
 
 ## Time Spent & Learnings
-- **Time Spent:** [Leave blank to be filled by candidate]
-- **Key Learnings:** [Leave blank to be filled by candidate]
+
+### ⏱️ Time Spent
+I spent roughly 12-14 hours on this over the last couple of days. I wanted to make sure the core CRUD and database schema were bulletproof before spending time obsessing over the drag-and-drop UI stretch goals. 
+
+### 💡 Learnings & Trade-offs
+Honestly, the biggest W for me on this project was successfully pivoting the database architecture from PostgreSQL to SQLite mid-flight. I realized that forcing a reviewer to spin up a Docker container just to grade an assignment is a hassle, so I rewrote the raw SQL queries and connection logic to ensure this repo is literally zero-friction to run locally. 
+
+Beyond that, configuring the new Tailwind v4 syntax with Vite was super smooth. Getting the `@hello-pangea/dnd` drag-and-drop to feel native—while keeping the optimistic UI state in sync with the FastAPI backend—was a solid brain-teaser, but figuring out that state management puzzle was incredibly rewarding.

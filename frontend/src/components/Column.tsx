@@ -1,6 +1,5 @@
-import React from 'react';
 import { Droppable } from '@hello-pangea/dnd';
-import { Column as ColumnType, Task } from '../types';
+import type { Column as ColumnType, Task } from '../types';
 import TaskCard from './TaskCard';
 import { Plus } from 'lucide-react';
 

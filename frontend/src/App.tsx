@@ -1,12 +1,11 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { DropResult } from '@hello-pangea/dnd';
-import { Board as BoardType, Task, TaskCountPerColumn, TaskCreate, TaskUpdate } from './types';
+import { useEffect, useState, useCallback } from 'react';
+import type { DropResult } from '@hello-pangea/dnd';
+import type { Board as BoardType, Task, TaskCountPerColumn, TaskCreate, TaskUpdate } from './types';
 import { api } from './api';
 import BoardComponent from './components/Board';
 import TaskModal from './components/TaskModal';
 import { Layout } from 'lucide-react';
 
-// Hardcoding board ID 1 based on our seed data
 const BOARD_ID = 1;
 
 function App() {
@@ -50,8 +49,12 @@ function App() {
             
             setTaskCounts(countsData);
             setError(null);
-        } catch (err: any) {
-            setError(err.message || 'Failed to load board data');
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                setError(err.message || 'Failed to load board data');
+            } else {
+                setError('Failed to load board data');
+            }
         } finally {
             setLoading(false);
         }
@@ -112,9 +115,9 @@ function App() {
                     return tc;
                 }));
             }
-        } catch (err: any) {
-            // Revert on failure
-            showToast(`Failed to move task: ${err.message}`, 'error');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            showToast(`Failed to move task: ${message}`, 'error');
             loadData();
         }
     };
@@ -141,8 +144,8 @@ function App() {
                 showToast('Task created successfully', 'success');
             }
             loadData();
-        } catch (err: any) {
-            throw err; // Let the modal handle the display of validation errors
+        } catch (err: unknown) {
+            throw err;
         }
     };
 
@@ -153,8 +156,9 @@ function App() {
             await api.deleteTask(taskId);
             showToast('Task deleted', 'success');
             loadData();
-        } catch (err: any) {
-            showToast(`Failed to delete task: ${err.message}`, 'error');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            showToast(`Failed to delete task: ${message}`, 'error');
         }
     };
 
@@ -168,7 +172,6 @@ function App() {
 
     return (
         <div className="flex flex-col h-screen bg-blue-50/50">
-            {/* Header */}
             <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-3 flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                     <div className="bg-blue-600 p-1.5 rounded-md">
@@ -197,7 +200,6 @@ function App() {
                 </div>
             </header>
 
-            {/* Main Content */}
             <main className="flex-1 overflow-hidden px-6">
                 {board && (
                     <BoardComponent
@@ -211,7 +213,6 @@ function App() {
                 )}
             </main>
 
-            {/* Modal */}
             <TaskModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
@@ -220,7 +221,6 @@ function App() {
                 existingTask={modalExistingTask}
             />
 
-            {/* Toast */}
             {toast && (
                 <div className={`fixed bottom-4 right-4 px-4 py-2 rounded shadow-lg text-white font-medium z-50 transition-opacity ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
                     {toast.message}

@@ -1,4 +1,4 @@
-import { Board, Task, TaskCreate, TaskMove, TaskUpdate, TaskCountPerColumn } from './types';
+import type { Board, Task, TaskCreate, TaskMove, TaskUpdate, TaskCountPerColumn } from './types';
 
 const API_BASE_URL = 'http://localhost:8000';
 

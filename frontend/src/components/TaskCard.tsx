@@ -1,6 +1,5 @@
-import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
-import { Task } from '../types';
+import type { Task, Priority } from '../types';
 import { Pencil, Trash2 } from 'lucide-react';
 
 interface TaskCardProps {
@@ -10,11 +9,11 @@ interface TaskCardProps {
     onDelete: (taskId: number) => void;
 }
 
-const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-        case 'high': return 'bg-red-100 text-red-800 border-red-200';
-        case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-        case 'low': return 'bg-green-100 text-green-800 border-green-200';
+const getPriorityColor = (priority: Priority) => {
+    switch (priority) {
+        case 'High': return 'bg-red-100 text-red-800 border-red-200';
+        case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        case 'Low': return 'bg-green-100 text-green-800 border-green-200';
         default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
 };

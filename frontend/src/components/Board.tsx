@@ -1,8 +1,7 @@
-import React from 'react';
-import { DragDropContext, DropResult } from '@hello-pangea/dnd';
-import { Board as BoardType, TaskCountPerColumn } from '../types';
+import { DragDropContext } from '@hello-pangea/dnd';
+import type { DropResult } from '@hello-pangea/dnd';
+import type { Board as BoardType, TaskCountPerColumn, Task } from '../types';
 import Column from './Column';
-import { Task } from '../types';
 
 interface BoardProps {
     board: BoardType;

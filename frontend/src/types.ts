@@ -1,9 +1,11 @@
+export type Priority = 'Low' | 'Medium' | 'High';
+
 export interface Task {
     id: number;
     column_id: number;
     title: string;
     description: string | null;
-    priority: string;
+    priority: Priority;
     order: number;
     created_at: string;
 }
@@ -28,14 +30,14 @@ export interface TaskCreate {
     column_id: number;
     title: string;
     description?: string | null;
-    priority?: string;
+    priority?: Priority;
     order?: number;
 }
 
 export interface TaskUpdate {
     title?: string;
     description?: string | null;
-    priority?: string;
+    priority?: Priority;
 }
 
 export interface TaskMove {
